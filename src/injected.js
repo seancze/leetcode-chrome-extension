@@ -35,6 +35,12 @@ function getCode() {
         return models[models.length - 1].getValue();
       }
     }
+
+    // Fallback for CodeMirror 6 (used in LeetCode mobile site)
+    const cm6Content = document.querySelector(".cm-content");
+    if (cm6Content) {
+      return cm6Content.innerText;
+    }
   } catch (e) {
     console.error("LeetCode Extension: Error getting code", e);
   }
@@ -80,11 +86,45 @@ function setCode(newCode) {
         );
         return true;
       }
-    } else {
-      console.error(
-        "LeetCode Extension: Monaco editor not found on window object."
-      );
     }
+
+    // Fallback for CodeMirror 6 (used in LeetCode mobile site)
+    const cm6Content = document.querySelector(".cm-content");
+    if (cm6Content) {
+      try {
+        cm6Content.focus();
+
+        // Explicitly select all content using Range API
+        const range = document.createRange();
+        range.selectNodeContents(cm6Content);
+
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+
+        // Try paste event (execCommand is deprecated)
+        let success = false;
+        try {
+          const dataTransfer = new DataTransfer();
+          dataTransfer.setData("text/plain", newCode);
+          const pasteEvent = new ClipboardEvent("paste", {
+            bubbles: true,
+            cancelable: true,
+            clipboardData: dataTransfer,
+          });
+          cm6Content.dispatchEvent(pasteEvent);
+          success = true;
+        } catch (e) {
+          console.warn("Paste dispatch failed", e);
+        }
+
+        if (success) return true;
+      } catch (e) {
+        console.warn("CM6 insert failed, trying fallback", e);
+      }
+    }
+
+    console.error("LeetCode Extension: Monaco editor or CodeMirror not found.");
   } catch (e) {
     console.error("LeetCode Extension: Error setting code", e);
   }

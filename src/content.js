@@ -192,12 +192,31 @@ async function handleGenerate() {
     renderHistory();
 
     // 5. Inject Code
-    await setCurrentCode(response.code);
+    try {
+      await setCurrentCode(response.code);
+      status.textContent = "Code generated and inserted!";
+      status.style.color = "green";
+    } catch (insertError) {
+      console.warn("Auto-insertion failed:", insertError);
+      status.innerHTML = "Code generated but failed to insert. ";
+      status.style.color = "orange";
+      status.className = "letc-status"; // Reset error class if any
+
+      const copyBtn = document.createElement("button");
+      copyBtn.className = "letc-btn letc-btn-primary letc-btn-xs";
+      copyBtn.textContent = "Copy Code";
+      copyBtn.style.marginLeft = "10px";
+      copyBtn.onclick = () => {
+        navigator.clipboard.writeText(response.code).then(() => {
+          copyBtn.textContent = "Copied!";
+          setTimeout(() => (copyBtn.textContent = "Copy Code"), 2000);
+        });
+      };
+      status.appendChild(copyBtn);
+    }
 
     // 6. Clear Input
     input.value = "";
-    status.textContent = "Code generated and inserted!";
-    status.style.color = "green";
   } catch (error) {
     status.textContent = error.message;
     status.className = "letc-status error";
@@ -262,7 +281,7 @@ function getCurrentCode() {
     setTimeout(() => {
       window.removeEventListener("message", listener);
       resolve("");
-    }, 1000);
+    }, 5000);
   });
 }
 
@@ -292,7 +311,7 @@ function setCurrentCode(code) {
     setTimeout(() => {
       window.removeEventListener("message", listener);
       reject(new Error("Timeout waiting for editor response."));
-    }, 1000);
+    }, 5000);
   });
 }
 
@@ -349,8 +368,20 @@ function renderHistory() {
           status.textContent = "Code applied from history!";
           status.style.color = "green";
         } catch (e) {
-          status.textContent = "Failed to apply code.";
+          status.innerHTML = "Failed to apply code. ";
           status.className = "letc-status error";
+
+          const copyBtn = document.createElement("button");
+          copyBtn.className = "letc-btn letc-btn-primary letc-btn-xs";
+          copyBtn.textContent = "Copy Code";
+          copyBtn.style.marginLeft = "10px";
+          copyBtn.onclick = () => {
+            navigator.clipboard.writeText(msg.content).then(() => {
+              copyBtn.textContent = "Copied!";
+              setTimeout(() => (copyBtn.textContent = "Copy Code"), 2000);
+            });
+          };
+          status.appendChild(copyBtn);
         }
       };
       div.appendChild(applyBtn);

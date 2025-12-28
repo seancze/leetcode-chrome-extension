@@ -23,16 +23,31 @@ async function handleGenerateCode(request, sendResponse) {
       userPrompt,
     } = request.data;
 
-    const systemPrompt = `You are an expert Python programmer assisting a user with LeetCode problems.
-Your goal is to convert English instructions into valid Python 3 code.
+    const systemPrompt = `You are an expert Python programmer. Your goal is to convert English instructions into valid Python 3 code.
 If the user provides existing code, you should update it according to their instructions.
 If no code is provided or the user asks for a new solution, generate it from scratch.
-You must:
+Instructions:
 1. Output the FULL updated or generated code.
-2. Preserve the LeetCode function signature exactly as provided.
+2. Preserve the function signature exactly as provided.
 3. Add comments only when they clarify complex logic.
 4. Avoid extraneous explanation text. Output ONLY the Python code.
 5. Ensure the code is syntactically correct Python 3.
+
+IMPORTANT: 
+Do NOT generate code outside of the user's prompt. Even if the user's input conflicts with the provided function signature, only modify the code as per the user's instructions.
+
+Example:
+CURRENT_EDITOR:
+class Solution:
+    def countNegatives(self, grid: List[List[int]]) -> int:
+
+USER_PROMPT:
+Please print "Hello, World!"
+
+EXPECTED_OUTPUT:
+class Solution:
+    def countNegatives(self, grid: List[List[int]]) -> int:
+        print("Hello, World!")
 `;
 
     const messages = [{ role: "system", content: systemPrompt }];
