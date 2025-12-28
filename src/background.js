@@ -64,15 +64,15 @@ class Solution:
     // Add the new user prompt
     messages.push({ role: "user", content: userPrompt });
 
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    const response = await fetch("https://api.openai.com/v1/responses", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "gpt-5-nano",
-        messages: messages,
+        model: "gpt-5.1-codex-mini",
+        input: messages,
       }),
     });
 
@@ -82,7 +82,23 @@ class Solution:
     }
 
     const data = await response.json();
-    const generatedCode = data.choices[0].message.content;
+
+    let generatedCode = "";
+    if (data.output) {
+      for (const item of data.output) {
+        if (item.type === "message" && item.role === "assistant") {
+          for (const contentItem of item.content) {
+            if (contentItem.type === "output_text") {
+              generatedCode += contentItem.text;
+            }
+          }
+        }
+      }
+    }
+
+    if (!generatedCode) {
+      throw new Error("No generated code found in response");
+    }
 
     // Clean up the code (remove markdown code blocks if present)
     const cleanCode = generatedCode
