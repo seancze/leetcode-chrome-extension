@@ -1,6 +1,6 @@
 // Inject the script to interact with Monaco Editor
 const script = document.createElement("script");
-script.src = chrome.runtime.getURL("src/injected.js");
+script.src = chrome.runtime.getURL("injected.js");
 (document.head || document.documentElement).appendChild(script);
 
 let currentProblemSlug = "";
