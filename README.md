@@ -42,3 +42,23 @@ This Chrome extension allows you to solve LeetCode problems by writing solutions
 - `src/content.js`: Injects UI and interacts with the page.
 - `src/injected.js`: Interacts with the Monaco editor.
 - `src/options.html`: Settings page.
+
+## Running tests
+
+### Run all tests
+
+```bash
+npx promptfoo@latest eval -c promptfoo/promptfooconfig.yaml --no-cache
+```
+
+### View logs
+
+```bash
+npx promptfoo@latest eval -c promptfoo/promptfooconfig.yaml --no-cache --verbose
+```
+
+### View results in browser
+
+```bash
+npx promptfoo@latest view
+```
