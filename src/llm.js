@@ -25,14 +25,12 @@ Violation of any rule above is an error.`;
 
   const messages = [{ role: "system", content: systemPrompt }];
 
-  // Add chat history
   if (chatHistory && chatHistory.length > 0) {
     chatHistory.forEach((msg) => {
       messages.push({ role: msg.role, content: msg.content });
     });
   }
 
-  // Add current code context if it exists and isn't just the default template
   if (currentCode) {
     messages.push({
       role: "system",
@@ -40,69 +38,42 @@ Violation of any rule above is an error.`;
     });
   }
 
-  // Add the new user prompt
   messages.push({ role: "user", content: userPrompt });
 
-  let response;
-  let data;
+  const response = await fetch("https://api.openai.com/v1/responses", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model: model,
+      input: messages,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error?.message || "OpenAI API request failed");
+  }
+
+  const data = await response.json();
+
   let generatedCode = "";
-
-  // codex openAI models use the responses endpoint
-  if (model.includes("codex")) {
-    response = await fetch("https://api.openai.com/v1/responses", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: model,
-        input: messages,
-      }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error?.message || "OpenAI API request failed");
-    }
-
-    data = await response.json();
-
-    if (data.output) {
-      for (const item of data.output) {
-        if (item.type === "message" && item.role === "assistant") {
-          for (const contentItem of item.content) {
-            if (contentItem.type === "output_text") {
-              generatedCode += contentItem.text;
-            }
+  if (data.output) {
+    for (const item of data.output) {
+      if (item.type === "message" && item.role === "assistant") {
+        for (const contentItem of item.content) {
+          if (contentItem.type === "output_text") {
+            generatedCode += contentItem.text;
           }
         }
       }
     }
+  }
 
-    if (!generatedCode) {
-      throw new Error("No generated code found in response");
-    }
-  } else {
-    response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: model,
-        messages: messages,
-      }),
-    });
-
-    data = await response.json();
-
-    if (data.error) {
-      throw new Error(data.error.message);
-    }
-
-    generatedCode = data.choices[0].message.content;
+  if (!generatedCode) {
+    throw new Error("No generated code found in response");
   }
 
   // Clean up the code (remove markdown code blocks if present)
