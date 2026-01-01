@@ -155,9 +155,24 @@ function setCode(newCode) {
   return false;
 }
 
+async function ensureTestCaseTab() {
+  const testCaseTab = document.getElementById("testcase_tab");
+  if (testCaseTab) {
+    // if the test case tab is not open
+    // dispatch a click event to open it
+    const tabButton = testCaseTab.closest(".flexlayout__tab_button");
+    tabButton.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
+    tabButton.dispatchEvent(new MouseEvent("mouseup", { bubbles: true }));
+    tabButton.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 200));
+  }
+}
+
 async function getTestCases() {
   try {
+    await ensureTestCaseTab();
     const testCaseEditor = getTestCaseEditor();
+
     return testCaseEditor.innerText;
   } catch (e) {
     console.error("LeetCode Extension: Error getting test cases", e);
@@ -168,6 +183,7 @@ async function getTestCases() {
 async function appendTestCase(newTestCase) {
   console.log("LeetCode Extension: appendTestCase called with", newTestCase);
   try {
+    await ensureTestCaseTab();
     const testCaseEditor = getTestCaseEditor();
 
     testCaseEditor.focus();
