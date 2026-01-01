@@ -65,35 +65,53 @@ export async function generateTest(
   currentTestCases,
   model
 ) {
-  const systemPrompt = `You are an expert software tester. Your task is to generate a single new test case for a coding problem.
+  const systemPrompt = `You are an expert software tester. Your task is to evaluate the user's code and generate a new test case if necessary.
 
 Rules:
-1. Read the problem description, current code, and existing test cases.
-2. Suggest a SINGLE new test case that obeys the constraints.
-3. If the user's code is incorrect, the new test case should cause the user's code to fail.
-4. If the user's code is likely correct, the new test case should be a stress test (max constraints) to check for TLE/MLE.
-5. Output ONLY the raw test case input, formatted exactly as LeetCode expects (e.g. line separated values or specific format). Do not add markdown, explanations, or code blocks.
+1. Analyse the problem description, current code, and existing test cases.
+2. Determine if the user's code is correct.
+3. If the user's code is correct, set "isUserCorrect" to true and "testCase" to null.
+4. If the user's code is incorrect, set "isUserCorrect" to false and generate a SINGLE new test case that causes the user's code to fail. Set "testCase" to this string.
+5. The "testCase" string must be formatted exactly as LeetCode expects (e.g. line separated values).
 6. Do not repeat existing test cases.`;
 
   const messages = [
     { role: "system", content: systemPrompt },
     {
       role: "user",
-      content: `Problem Title: ${problemDetails.title}\nProblem Description:\n${problemDetails.description}\n\nCurrent Code:\n\`\`\`python\n${currentCode}\n\`\`\`\n\nCurrent Test Cases:\n${currentTestCases}\n\nGenerate a single new test case.`,
+      content: `Problem Title: ${problemDetails.title}\nProblem Description:\n${problemDetails.description}\n\nCurrent Code:\n\`\`\`python\n${currentCode}\n\`\`\`\n\nCurrent Test Cases:\n${currentTestCases}\n\nEvaluate and generate test case if needed.`,
     },
   ];
 
-  const { generatedOutput, usage } = await fetchOpenAIResponse(
-    apiKey,
-    model,
-    messages
-  );
+  const schema = {
+    type: "json_schema",
+    name: "test_case_evaluation",
+    strict: true,
+    schema: {
+      type: "object",
+      properties: {
+        testCase: {
+          type: ["string", "null"],
+          description:
+            "The new test case input, or null if the user's code is correct.",
+        },
+        isUserCorrect: {
+          type: "boolean",
+          description: "Whether the user's code is correct.",
+        },
+      },
+      required: ["testCase", "isUserCorrect"],
+      additionalProperties: false,
+    },
+  };
 
-  const cleanTest = generatedOutput.trim();
+  const { testCase, isUserCorrect, usage } =
+    await fetchOpenAIStructuredResponse(apiKey, model, messages, schema);
 
   return {
-    testCase: cleanTest,
-    usage: usage,
+    testCase,
+    isUserCorrect,
+    usage,
   };
 }
 
@@ -135,4 +153,47 @@ async function fetchOpenAIResponse(apiKey, model, messages) {
   }
 
   return { generatedOutput, usage: data.usage };
+}
+
+async function fetchOpenAIStructuredResponse(apiKey, model, messages, schema) {
+  const response = await fetch("https://api.openai.com/v1/responses", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model: model,
+      input: messages,
+      text: {
+        format: schema,
+      },
+    }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error?.message || "OpenAI API request failed");
+  }
+
+  const data = await response.json();
+
+  let generatedOutput = "";
+  if (data.output) {
+    for (const item of data.output) {
+      if (item.type === "message" && item.role === "assistant") {
+        for (const contentItem of item.content) {
+          if (contentItem.type === "output_text") {
+            generatedOutput += contentItem.text;
+          }
+        }
+      }
+    }
+  }
+
+  if (!generatedOutput) {
+    throw new Error("No structured output found in response");
+  }
+
+  return { ...JSON.parse(generatedOutput), usage: data.usage };
 }

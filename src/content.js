@@ -266,6 +266,12 @@ async function handleGenerateTest() {
     const endTime = performance.now();
     const timeTaken = ((endTime - startTime) / 1000).toFixed(2);
 
+    if (response.isUserCorrect) {
+      status.textContent = `Code appears correct! No new test case needed. (${timeTaken}s)`;
+      status.style.color = "green";
+      return;
+    }
+
     // Append Test Case
     try {
       await appendTestCase(response.testCase);

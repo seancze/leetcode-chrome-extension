@@ -56,7 +56,7 @@ async function handleGenerateTest(request, sendResponse) {
       currentTestCases,
       "gpt-5.1-codex-mini"
     );
-    sendResponse({ testCase: result.testCase });
+    sendResponse(result);
   } catch (error) {
     console.error("Error generating test:", error);
     sendResponse({ error: error.message });
