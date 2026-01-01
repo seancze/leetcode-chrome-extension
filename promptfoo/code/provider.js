@@ -19,7 +19,7 @@ class LeetCodeProvider {
 
     try {
       // Dynamic import for ESM module
-      const { generateCode } = await import("../src/llm.js");
+      const { generateCode } = await import("../../src/llm.js");
 
       const result = await generateCode(
         apiKey,

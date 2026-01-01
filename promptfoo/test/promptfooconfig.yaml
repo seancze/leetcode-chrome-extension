@@ -1,0 +1,59 @@
+prompts:
+  - "Generate test case"
+
+providers:
+  - id: file://provider.js
+    label: "gpt-5.1-codex-mini"
+    config:
+      model: gpt-5.1-codex-mini
+
+tests:
+  - description: "1 - Correct Code"
+    vars:
+      currentCode: |
+        class Solution:
+            def plusOne(self, digits: List[int]) -> List[int]:
+                for i in range(len(digits)-1, -1, -1):
+                    digits[i] += 1
+                    if digits[i] == 10:
+                        digits[i] = 0
+                        # move to the next iteration to carry 1 to the next number
+                    else:
+                        break
+                
+                # this means that the first number has a carry of 1 too
+                if digits[0] == 0:
+                    ans = [1]
+                    for el in digits:
+                        ans.append(el)
+                    return ans
+
+                return digits
+      problemDetails: |
+        {
+            "title": "Plus One",
+            "description": "You are given a large integer represented as an integer array digits, where each digits[i] is the ith digit of the integer. The digits are ordered from most significant to least significant in left-to-right order. The large integer does not contain any leading 0's.\n\nIncrement the large integer by one and return the resulting array of digits.\n\n \n\nExample 1:\n\nInput: digits = [1,2,3]\nOutput: [1,2,4]\nExplanation: The array represents the integer 123.\nIncrementing by one gives 123 + 1 = 124.\nThus, the result should be [1,2,4].\n\n\nExample 2:\n\nInput: digits = [4,3,2,1]\nOutput: [4,3,2,2]\nExplanation: The array represents the integer 4321.\nIncrementing by one gives 4321 + 1 = 4322.\nThus, the result should be [4,3,2,2].\n\n\nExample 3:\n\nInput: digits = [9]\nOutput: [1,0]\nExplanation: The array represents the integer 9.\nIncrementing by one gives 9 + 1 = 10.\nThus, the result should be [1,0].\n\n\n \n\nConstraints:\n\n1 <= digits.length <= 100\n0 <= digits[i] <= 9\ndigits does not contain any leading 0's."
+        }
+      currentTestCases: ""
+    assert:
+      - type: javascript
+        value: |
+          const res = JSON.parse(output);
+          return res.isUserCorrect === true && res.testCase === null;
+
+  - description: "2 - Incorrect Code"
+    vars:
+      currentCode: |
+        class Solution:
+            def plusOne(self, digits: List[int]) -> List[int]:
+      problemDetails: |
+        {
+            "title": "Plus One",
+            "description": "You are given a large integer represented as an integer array digits, where each digits[i] is the ith digit of the integer. The digits are ordered from most significant to least significant in left-to-right order. The large integer does not contain any leading 0's.\n\nIncrement the large integer by one and return the resulting array of digits.\n\n \n\nExample 1:\n\nInput: digits = [1,2,3]\nOutput: [1,2,4]\nExplanation: The array represents the integer 123.\nIncrementing by one gives 123 + 1 = 124.\nThus, the result should be [1,2,4].\n\n\nExample 2:\n\nInput: digits = [4,3,2,1]\nOutput: [4,3,2,2]\nExplanation: The array represents the integer 4321.\nIncrementing by one gives 4321 + 1 = 4322.\nThus, the result should be [4,3,2,2].\n\n\nExample 3:\n\nInput: digits = [9]\nOutput: [1,0]\nExplanation: The array represents the integer 9.\nIncrementing by one gives 9 + 1 = 10.\nThus, the result should be [1,0].\n\n\n \n\nConstraints:\n\n1 <= digits.length <= 100\n0 <= digits[i] <= 9\ndigits does not contain any leading 0's."
+        }
+      currentTestCases: ""
+    assert:
+      - type: javascript
+        value: |
+          const res = JSON.parse(output);
+          return res.isUserCorrect === false && typeof res.testCase === 'string' && res.testCase.length > 0;
