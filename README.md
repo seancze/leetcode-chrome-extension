@@ -31,7 +31,7 @@ This Chrome extension allows you to solve LeetCode problems by writing solutions
 2.  A floating panel "English to Code" will appear in the bottom right.
 3.  Type your solution logic in the text area.
     - Example: "Create a hash map to store the complement of each number. Iterate through the array, check if complement exists, if so return indices."
-4.  Click **Generate Code**.
+4.  Click **Code**.
 5.  The extension will generate the Python code and replace the content in the LeetCode editor.
 6.  You can continue the conversation to fix bugs or optimize the solution.
 
