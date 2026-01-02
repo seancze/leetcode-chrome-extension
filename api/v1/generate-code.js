@@ -84,13 +84,14 @@ Violation of any rule above is an error.`;
 
     messages.push({ role: "user", content: userPrompt });
 
-    const completion = await openai.chat.completions.create({
+    const response = await openai.responses.create({
       model: model,
-      messages: messages,
+      input: messages,
     });
 
-    const generatedOutput = completion.choices[0].message.content;
-    const usage = completion.usage;
+    const generatedOutput =
+      response.output_text || response.output[0].content[0].text;
+    const usage = response.usage;
 
     // remove markdown code blocks if present
     const cleanCode = generatedOutput

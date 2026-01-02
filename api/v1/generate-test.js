@@ -57,7 +57,13 @@ Rules:
 3. If the user's code is correct, set "isUserCorrect" to true and "testCase" to null.
 4. If the user's code is incorrect, set "isUserCorrect" to false and generate a SINGLE new test case that causes the user's code to fail. Set "testCase" to this string.
 5. The "testCase" string must be formatted exactly as LeetCode expects (e.g. line separated values).
-6. Do not repeat existing test cases.`;
+6. Do not repeat existing test cases.
+
+Return the result as a JSON object with the following structure:
+{
+  "testCase": "string or null",
+  "isUserCorrect": boolean
+}`;
 
     const messages = [
       { role: "system", content: systemPrompt },
@@ -67,36 +73,14 @@ Rules:
       },
     ];
 
-    const schema = {
-      type: "json_schema",
-      name: "test_case_evaluation",
-      strict: true,
-      schema: {
-        type: "object",
-        properties: {
-          testCase: {
-            type: ["string", "null"],
-            description:
-              "The new test case input, or null if the user's code is correct.",
-          },
-          isUserCorrect: {
-            type: "boolean",
-            description: "Whether the user's code is correct.",
-          },
-        },
-        required: ["testCase", "isUserCorrect"],
-        additionalProperties: false,
-      },
-    };
-
-    const completion = await openai.chat.completions.create({
+    const response = await openai.responses.create({
       model: model,
-      messages: messages,
-      response_format: schema,
+      input: messages,
     });
 
-    const generatedOutput = completion.choices[0].message.content;
-    const usage = completion.usage;
+    const generatedOutput =
+      response.output_text || response.output[0].content[0].text;
+    const usage = response.usage;
     const result = JSON.parse(generatedOutput);
 
     return new Response(
