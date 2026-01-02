@@ -90,6 +90,11 @@ Return the result as a JSON object with the following structure:
         "Access-Control-Allow-Methods": "POST, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type, Authorization",
       },
+      messageMetadata: ({ part }) => {
+        if (part.type === "finish") {
+          return { usage: part.totalUsage };
+        }
+      },
     });
   } catch (error) {
     return new Response(JSON.stringify({ error: error.message }), {

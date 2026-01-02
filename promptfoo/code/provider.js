@@ -32,9 +32,9 @@ class LeetCodeProvider {
       return {
         output: result.code,
         tokenUsage: {
-          total: result.usage.total_tokens,
-          prompt: result.usage.prompt_tokens,
-          completion: result.usage.completion_tokens,
+          total: result.usage.totalTokens,
+          prompt: result.usage.inputTokens,
+          completion: result.usage.outputTokens,
         },
       };
     } catch (error) {
