@@ -27,6 +27,16 @@ export default async function handler(req) {
     const { apiKey, userPrompt, currentCode, chatHistory, model } =
       await req.json();
 
+    if (!model) {
+      return new Response(JSON.stringify({ error: "Model is required" }), {
+        status: 400,
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+        },
+      });
+    }
+
     if (!apiKey) {
       return new Response(JSON.stringify({ error: "API Key is required" }), {
         status: 400,
@@ -75,7 +85,7 @@ Violation of any rule above is an error.`;
     messages.push({ role: "user", content: userPrompt });
 
     const completion = await openai.chat.completions.create({
-      model: model || "gpt-4o",
+      model: model,
       messages: messages,
     });
 

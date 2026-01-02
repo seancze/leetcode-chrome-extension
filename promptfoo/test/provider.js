@@ -31,7 +31,7 @@ class TestGeneratorProvider {
         currentCode,
         parsedProblemDetails,
         currentTestCases || "",
-        this.config.model || "gpt-4o"
+        this.config.model
       );
 
       return {
