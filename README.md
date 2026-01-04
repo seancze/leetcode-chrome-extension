@@ -1,4 +1,4 @@
-# LeetCode English to Code Chrome Extension
+# LeetCode On The Go Chrome Extension
 
 This Chrome extension allows you to solve LeetCode problems by writing solutions in English. It uses OpenAI's GPT models to convert your natural language instructions into Python 3 code and inserts it directly into the LeetCode editor.
 

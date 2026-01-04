@@ -1,8 +1,14 @@
 {
   "manifest_version": 3,
-  "name": "LeetCode English to Code",
+  "name": "LeetCode On The Go",
   "version": "1.0",
-  "description": "Solve LeetCode problems by writing solutions in English.",
+  "description": "Solve LeetCode problems on mobile by writing solutions in English.",
+  "icons": {
+    "16": "icons/16.png",
+    "32": "icons/32.png",
+    "48": "icons/48.png",
+    "128": "icons/128.png"
+  },
   "permissions": ["storage", "activeTab", "scripting"],
   "host_permissions": [
     "https://leetcode.com/*",
