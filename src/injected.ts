@@ -236,7 +236,7 @@ function getTestCaseEditor(): HTMLElement | null {
   // NOTE: logic for getting test case editor was found empirically and may break when LeetCode updates their site
   if (cmContents.length == 1) {
     return cmContents[0] as HTMLElement;
-  } else if (cmContents.length > 1) {
+  } else if (cmContents.length == 2) {
     return cmContents[1] as HTMLElement;
   }
   return null;
