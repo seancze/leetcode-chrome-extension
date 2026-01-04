@@ -92,6 +92,17 @@ function createUI() {
   const clearBtn = document.getElementById("letc-clear");
   if (clearBtn) clearBtn.addEventListener("click", clearHistory);
 
+  // auto resize textarea as user types
+  const inputArea = document.getElementById(
+    "letc-input"
+  ) as HTMLTextAreaElement;
+  if (inputArea) {
+    inputArea.addEventListener("input", function () {
+      this.style.height = "auto";
+      this.style.height = this.scrollHeight + "px";
+    });
+  }
+
   // Drag functionality
   const header = document.getElementById("letc-header");
   let isDragging = false;
@@ -258,6 +269,7 @@ async function handleGenerate() {
 
         // Clear Input
         input.value = "";
+        input.style.height = "40px";
         generateBtn.disabled = false;
         generateBtn.textContent = "Code";
       }
